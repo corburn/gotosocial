@@ -1,29 +1,29 @@
 # STEP ONE: build the GoToSocial binary
 FROM golang:1.16.4-alpine3.13 AS binary_builder
-RUN apk update && apk upgrade --no-cache
-RUN apk add git
+#RUN apk update && apk upgrade --no-cache
+#RUN apk add git
 
 # create build dir
 RUN mkdir -p /go/src/github.com/superseriousbusiness/gotosocial
 WORKDIR /go/src/github.com/superseriousbusiness/gotosocial
 
 # move source files
-ADD cmd /go/src/github.com/superseriousbusiness/gotosocial/cmd
-ADD internal /go/src/github.com/superseriousbusiness/gotosocial/internal
-ADD testrig /go/src/github.com/superseriousbusiness/gotosocial/testrig
-ADD docs/swagger.go /go/src/github.com/superseriousbusiness/gotosocial/docs/swagger.go
+COPY cmd /go/src/github.com/superseriousbusiness/gotosocial/cmd
+COPY internal /go/src/github.com/superseriousbusiness/gotosocial/internal
+COPY testrig /go/src/github.com/superseriousbusiness/gotosocial/testrig
+COPY docs/swagger.go /go/src/github.com/superseriousbusiness/gotosocial/docs/swagger.go
 
 # dependencies and vendor
-ADD go.mod /go/src/github.com/superseriousbusiness/gotosocial/go.mod
-ADD go.sum /go/src/github.com/superseriousbusiness/gotosocial/go.sum
-ADD vendor /go/src/github.com/superseriousbusiness/gotosocial/vendor
+COPY go.mod /go/src/github.com/superseriousbusiness/gotosocial/go.mod
+COPY go.sum /go/src/github.com/superseriousbusiness/gotosocial/go.sum
+COPY vendor /go/src/github.com/superseriousbusiness/gotosocial/vendor
 
 # move .git dir and version for versioning
-ADD .git /go/src/github.com/superseriousbusiness/gotosocial/.git
-ADD version /go/src/github.com/superseriousbusiness/gotosocial/version
+#COPY .git /go/src/github.com/superseriousbusiness/gotosocial/.git
+#COPY version /go/src/github.com/superseriousbusiness/gotosocial/version
 
 # move the build script
-ADD build.sh /go/src/github.com/superseriousbusiness/gotosocial/build.sh
+COPY build.sh /go/src/github.com/superseriousbusiness/gotosocial/build.sh
 
 # do the build step
 RUN ./build.sh

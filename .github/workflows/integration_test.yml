@@ -1,0 +1,72 @@
+name: Integration Tests
+on:
+  workflow_run:
+    #workflows: ["Dependabot Untrusted Workflow"]
+    workflows: ["dependabot_untrusted_workflow.yml"]
+    types: 
+      - completed
+
+jobs:
+  TODO:
+    runs-on: ubuntu-latest
+
+  # container-build:
+  #   needs: checkout
+  #   runs-on: ubuntu-latest
+  #   container: golang:1.17
+  #   services:
+  #     # Label used to access the service container
+  #     postgres:
+  #       image: postgres:13-alpine
+  #       env:
+  #         POSTGRES_PASSWORD: postgres
+  #       # Set health checks to wait until postgres has started
+  #       options: >-
+  #         --health-cmd pg_isready
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+
+  #   defaults:
+  #     run:
+  #       working-directory: ./cmd/gotosocial
+ 
+  #   steps:
+  #     - name: Build
+  #       run: go build
+
+  #     - name: Launch server
+  #       run: |
+  #         ./gotosocial \
+  #           --host example.org \
+  #           --port 443 \
+  #           --db-address postgres \
+  #           --storage-serve-host example.org \
+  #           --letsencrypt-enabled=true \
+  #           server start &
+  #       env:
+  #         # The hostname used to communicate with the PostgreSQL service container
+  #         POSTGRES_HOST: postgres
+  #         # The default PostgreSQL port
+  #         POSTGRES_PORT: 5432
+
+  #     - name: Create and confirm your user
+  #       working-directory: ./cmd/gotosocial
+  #       run: |
+  #         ./gotosocial \
+  #           --host example.org \
+  #           --db-address postgres \
+  #           admin account create \
+  #           --username some_username \
+  #           --email some_email@whatever.org \
+  #           --password SOME_PASSWORD
+  #         ./gotosocial \
+  #           --host example.org \
+  #           --db-address postgres \
+  #           admin account confirm \
+  #           --username some_username
+  #         ./gotosocial \
+  #           --host example.org \
+  #           --db-address postgres \
+  #           admin account promote \
+  #           --username some_username

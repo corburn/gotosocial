@@ -1,0 +1,86 @@
+# https://json.schemastore.org/github-workflow.json
+name: Go CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    # defaults:
+    #   run:
+    #     working-directory: ./cmd/gotosocial
+
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:13-alpine
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host.
+          # This is required when the job steps are run on the host instead of a container.
+          - 5432:5432
+
+    steps:
+
+      -
+        name: Check out repository code
+        uses: actions/checkout@v2
+      
+      # https://github.com/actions/cache/blob/6bbe742add91b3db4abf110e742a967ec789958f/examples.md#linux
+      -
+        name: Cache Go modules
+        uses: actions/cache@v2
+        id: go-mod-cache
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      
+      # https://github.com/actions/setup-go
+      -
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17' # The Go version to download (if necessary) and use.
+      
+      -
+        working-directory: ./cmd/gotosocial
+        run: |
+          go build
+          ./gotosocial --help
+
+      # `-count 1`  => run all tests at least once
+      # `-p 1`      => run maximum one test at a time
+      # `./...`     => run all tests
+      -
+        run: go test -count 1 -p 1 ./...
+
+  # We use golangci-lint for linting.
+  # See: https://golangci-lint.run/
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: golangci/golangci-lint:v1.41.1
+      volumes:
+      - go-build-cache:/root/.cache/go-build
+      - golangci-lint-cache:/root/.cache/golangci-lint
+    steps:
+      - uses: actions/checkout@v2
+      - name: lint
+        run: golangci-lint run --timeout 5m0s --tests=false --verbose
